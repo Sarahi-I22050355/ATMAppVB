@@ -313,10 +313,9 @@ Public Class Form1
         End Using
     End Sub
     Public Shared Sub SendEmail(ByRef Mensaje As StringBuilder, FechaEnvio As DateTime, De As String, Para As String, Asunto As String, ByRef [Error] As String)
-        [Error] = ""
         Try
             Mensaje.Append(Environment.NewLine)
-            Mensaje.Append(String.Format("This email was sent on {0:dd/MM/yyyy} at {0:HH:mm:ss} Hrs: " & vbCr & vbLf, FechaEnvio))
+            Mensaje.Append(String.Format("This email was sent on {0:dd/MM/yyyy} at {0:HH:mm:ss} Hrs " & vbCr & vbLf, FechaEnvio))
             Mensaje.Append(Environment.NewLine)
             Dim mail As New MailMessage()
             mail.From = New MailAddress(De)
