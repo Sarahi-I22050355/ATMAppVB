@@ -1,8 +1,9 @@
-﻿Imports System.Text
-Imports System.Data.SqlClient
+﻿Imports System.Data.SqlClient
 Imports System.IO
 Imports System.Net.Mail
-
+Imports System.Text
+Imports System.Windows.Forms
+Imports System.Diagnostics
 Public Class Form1
     Inherits Form
     Implements IATMActions
@@ -59,7 +60,6 @@ Public Class Form1
 
 #Region "Method´s IATMActions"
     Public Sub Deposit(amount As Integer) Implements IATMActions.Deposit
-        Throw New NotImplementedException()
         bancknote100 = CInt(nud100.Value)
         bancknote200 = CInt(nud200.Value)
         bancknote500 = CInt(nud500.Value)
@@ -106,8 +106,6 @@ Public Class Form1
         End If
     End Sub
     Public Sub Withdrawal(WAmount As Integer) Implements IATMActions.Withdrawal
-        Throw New NotImplementedException()
-        ' Verificar si el monto a retirar es válido
         If WAmount <= 0 Then
             Console.Beep()
             WithdrawalPanel.Visible = False
@@ -117,7 +115,6 @@ Public Class Form1
             Return
         End If
 
-        ' Verificar si el usuario tiene suficiente saldo para el retiro
         If WAmount > BalanceActualUser Then
             Console.Beep()
             WithdrawalPanel.Visible = False
@@ -127,14 +124,13 @@ Public Class Form1
             Return
         End If
 
-        ' Verificar si hay suficiente dinero en el cajero
         If Not HasAnyFunds() Then
             Console.Beep()
             WithdrawalPanel.Visible = False
             NotFoundsPanel.Visible = True
             BtnEnter.Enabled = False
             timer.Start()
-            'Information to send an email.
+
             Dim De As String = "sarahi.reyessrv@outlook.com"
             Dim Para As String = "sarahi.reyessrv@outlook.com"
             Dim Asunto As String = "Insufficient funds alert at the ATM"
@@ -146,7 +142,6 @@ Public Class Form1
             Return
         End If
 
-        ' Verificar si el monto a retirar se puede dispensar con los billetes disponibles
         If Not CanDispenseAmount(WAmount) Then
             Console.Beep()
             WithdrawalPanel.Visible = False
@@ -156,10 +151,7 @@ Public Class Form1
             Return
         End If
 
-        ' Realizar el retiro
         DispenseAmount(WAmount)
-
-        ' Actualizar el saldo del usuario en la base de datos
         newBalance = BalanceActualUser - WAmount
         UpdateBalanceInDatabase(newBalance)
         UpdateUserBalance()
@@ -348,8 +340,9 @@ Public Class Form1
 
 #Region "Others"
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Timer1.Stop()
+        timer.Stop()
     End Sub
+
     Protected Overrides Sub Finalize()
         timer.Stop()
         timer.Dispose()
@@ -363,7 +356,9 @@ Public Class Form1
     End Sub
 
     Private Sub AuthorLabel_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles AuthorLabel.LinkClicked
+        Dim psi As New ProcessStartInfo("https://github.com/Sarahi-I22050355/ATMAppVB") With {.UseShellExecute = True}
 
+        Process.Start(psi)
     End Sub
 
     Private Sub BtnNumber_Click(sender As Object, e As EventArgs) Handles Btn9.Click, Btn8.Click, Btn7.Click, Btn6.Click, Btn5.Click, Btn4.Click, Btn3.Click, Btn0.Click, Btn00.Click, Btn2.Click, Btn1.Click
@@ -379,7 +374,7 @@ Public Class Form1
 #End Region
 
 #Region "Clear - Cancel - Enter"
-    Private Sub BtnCancel_Click(sender As Object, e As EventArgs) Handles BtnCancel.Click
+    Private Sub BtnCancel_Click(sender As Object, e As EventArgs) Handles BtnCancel.Click, timer1.Tick
         Actualstatus = ATMstatus.Home
         UpdateUserBalance()
         OptionsPanel.Visible = True
@@ -510,6 +505,7 @@ Public Class Form1
         user.NIP = Nothing
         user.ID = 0
         user.Name = Nothing
+        user.Balance = 0
         textBoxID.Clear()
         textBoxNIP.Clear()
         textBoxN.Clear()
@@ -517,7 +513,7 @@ Public Class Form1
         WelcomePanel.Visible = True
     End Sub
 
-    Private Sub BtnVerify_Click(ByVal sender As Object, ByVal e As EventArgs)
+    Private Sub BtnVerify_Click(sender As Object, e As EventArgs) Handles BtnVerify.Click
         user = New User()
         Dim _id As Integer = Nothing
 
@@ -548,7 +544,7 @@ Public Class Form1
 
                 user.ID = _id
                 Dim _name As String = textBoxN.Text
-                user.Name = name
+                user.Name = _name
                 Dim query As String = "SELECT * FROM [user] WHERE id = @Id AND name = @Name"
 
                 Using command As SqlCommand = New SqlCommand(query, connection)
@@ -586,6 +582,7 @@ Public Class Form1
                 End Using
             End Using
         End If
+
     End Sub
 #End Region
 

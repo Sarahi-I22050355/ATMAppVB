@@ -224,6 +224,9 @@ Partial Class Form1
         Me.Btn00.Text = "00"
         Me.Btn00.UseVisualStyleBackColor = True
         '
+        'timer1
+        '
+        '
         'Btn0
         '
         Me.Btn0.Font = New System.Drawing.Font("Consolas", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point)
@@ -779,6 +782,7 @@ Partial Class Form1
         'BtnVerify
         '
         Me.BtnVerify.Font = New System.Drawing.Font("Microsoft Sans Serif", 24.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.BtnVerify.ForeColor = System.Drawing.Color.DimGray
         Me.BtnVerify.Location = New System.Drawing.Point(301, 425)
         Me.BtnVerify.Name = "BtnVerify"
         Me.BtnVerify.Size = New System.Drawing.Size(234, 51)
